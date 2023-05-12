@@ -1,0 +1,15 @@
+{
+  "compilerOptions":{
+    "target": "ES2015",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    "lib": ["ES6"],      
+    "experimentalDecorators": true,                   /* Enable experimental support for legacy experimental decorators. */
+    "emitDecoratorMetadata": true,  
+    "module": "CommonJS", 
+    "outDir": "./build",  
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true, 
+    "strict": true,   
+    "skipLibCheck": true,
+    "declaration": true,     
+  }
+}

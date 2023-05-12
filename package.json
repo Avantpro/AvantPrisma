@@ -1,0 +1,28 @@
+{
+  "name": "avantprisma",
+  "version": "1.2.0",
+  "description": "",
+  "main": "build/src/index.ts",
+  "scripts": {
+    "build": "npx tsc",
+    "public": "npm rum build && npm version patch && npm publish"
+  },
+  "bin": {
+    "init": "./build/bin/init.js",
+    "avantprisma": "./build/bin/avantprisma.js",
+    "help": "./build/bin/help.js",
+    "build": "./build/src/build.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.22",
+    "ts-node": "^10.9.1"
+  },
+  "dependencies": {
+    "@types/node": "^20.1.3",
+    "dotenv": "^16.0.3",
+    "typescript": "^5.0.4"
+  }
+}
