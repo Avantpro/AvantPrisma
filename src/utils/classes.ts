@@ -96,6 +96,8 @@ class AvantTable<T> {
   public delete(args: deleteArgs<T>){
     const whereCols = Object.keys(args.where)
     if(!this.uniques.some(u => whereCols.includes(u))) throw new Error('Delete requires at least one unique property')
+    const where = this.#whereQuery(args.where)
+    return `DELETE FROM ${this.name} ${where}`
   }
 
   #whereQuery (where: OneRequired<WhereFilters<T> >) {
