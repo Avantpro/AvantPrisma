@@ -2,7 +2,7 @@
   "name": "avantprisma",
   "version": "1.2.2",
   "description": "",
-  "main": "build/src/index.ts",
+  "main": "build/src/index.js",
   "scripts": {
     "build": "npx tsc",
     "public": "npm rum build && npm version patch && npm publish"
