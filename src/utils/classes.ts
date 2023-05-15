@@ -46,7 +46,7 @@ class AvantTable<T> {
   }
 
 
-  public findMany(args?: findArgs<T>){
+  public findMany(args?: findArgs<T>): string{
     if(!args) return `SELECT * FROM ${this.name}`
     const where = args.where ? this.#whereQuery(args.where) : ''
     const fields = args.select ? this.#fieldsQuery(args.select, !!args.include) : '*'
@@ -54,7 +54,7 @@ class AvantTable<T> {
     return `SELECT ${fields} FROM ${this.name} ${where} ${join}`
   }
 
-  public findUnique(args: findUniqueArgs<T>){
+  public findUnique(args: findUniqueArgs<T>): string{
     const fields = args.select ? this.#fieldsQuery(args.select, !!args.include) : '*'
     const whereCols = Object.keys(args.where)
     const join = args.include ? this.#joinQuery(args.include) : ''
@@ -62,7 +62,7 @@ class AvantTable<T> {
     return `SELECT ${fields} FROM ${this.name} ${this.#whereQuery(args.where)} ${join}`
   }
 
-  public create(data: OmitRelations<T>){
+  public create(data: OmitRelations<T>): string{
     let dataBuffer = data as { [key: string]: any }
     const defaultKeys = Object.keys(this.defaults)
     defaultKeys.forEach(k => {
@@ -77,7 +77,7 @@ class AvantTable<T> {
     return `INSERT INTO ${this.name} ${fields} VALUES (${values.join(', ')});`
   }
 
-  public update(args: updateArgs<T>){
+  public update(args: updateArgs<T>): string{
     let setQuery = ''
     const where = this.#whereQuery(args.where)
     const keys = Object.keys(args.data)
@@ -93,14 +93,14 @@ class AvantTable<T> {
     return `UPDATE ${this.name} SET ${setQuery} ${where}`
   }
 
-  public delete(args: deleteArgs<T>){
+  public delete(args: deleteArgs<T>): string{
     const whereCols = Object.keys(args.where)
     if(!this.uniques.some(u => whereCols.includes(u))) throw new Error('Delete requires at least one unique property')
     const where = this.#whereQuery(args.where)
     return `DELETE FROM ${this.name} ${where}`
   }
 
-  #whereQuery (where: OneRequired<WhereFilters<T> >) {
+  #whereQuery (where: OneRequired<WhereFilters<T> >): string {
     const keys = Object.keys(where)
     let acc = 0
     let query: string = 'WHERE '
@@ -161,14 +161,14 @@ class AvantTable<T> {
     return query
   }
 
-  #fieldsQuery (select: Binary<OmitRelations<T>>, join: boolean){
+  #fieldsQuery (select: Binary<OmitRelations<T>>, join: boolean): string{
     let keys = Object.keys(select)
     keys = keys.filter((_k, i) => Object.values(select)[i])
     if(join) keys = keys.map(k => `${this.name}.${k}`)
     return keys.join(', ').toUpperCase()
   }
 
-  #joinQuery (include: Relations<T>){
+  #joinQuery (include: Relations<T>): string{
     let prefix = process.env.AVANT_PREFIX || ''
     let joinQuery = ''
     for (const key in include) {
