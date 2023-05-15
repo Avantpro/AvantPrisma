@@ -165,7 +165,7 @@ export { ${modelsName.join(', ')} }
 
   compile(filesBuffer, {
     "target": ts.ScriptTarget.ES5,                                  
-    "lib": ["ES6"],      
+    // "lib": ["ES2015"],      
     "experimentalDecorators": true,                  
     "emitDecoratorMetadata": true,  
     "module": ts.ModuleKind.CommonJS, 
