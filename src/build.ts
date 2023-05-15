@@ -135,7 +135,7 @@ export default async () => {
     const name = modelsName[i]
     schemasImports += `import ${name} from './types/schemas/${name}Schema'\n`
     clientTablesDefinition += `${name.toLowerCase()}: AvantTable< ${name} >\n\t`
-    clientTablesConstructor += `this.${name.toLowerCase()} = new AvantTable< ${name} >(${JSON.stringify(prefix + name.toUpperCase())}, ${JSON.stringify(modelsUniques[i])}, ${JSON.stringify(modelsDefaults[i])}, ${JSON.stringify(modelsRelations[i])})\n\t\t`
+    clientTablesConstructor += `this.${name.toLowerCase()} = new AvantTable< ${name} >(${prefix + name.toUpperCase()}, ${JSON.stringify(modelsUniques[i])}, ${JSON.stringify(modelsDefaults[i])}, ${JSON.stringify(modelsRelations[i])})\n\t\t`
   }
 
   const index = `
