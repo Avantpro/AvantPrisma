@@ -37,6 +37,10 @@ type genericFilters<T> = {
 }
 
 type dateFilters<T> = {
+  lt: Date,
+  lte: Date,
+  gt: Date,
+  gte: Date,
   beetween: [Date, Date]
 } & genericFilters<T>
 
