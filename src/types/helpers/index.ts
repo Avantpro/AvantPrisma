@@ -36,6 +36,10 @@ type genericFilters<T> = {
   notIn: T[]
 }
 
+type dateFilters<T> = {
+  beetween: [Date, Date]
+} & genericFilters<T>
+
 type numberFilters<T> = {
   lt: number,
   lte: number,
@@ -51,7 +55,7 @@ type textFilters<T> = {
 } & genericFilters<T>
 
 type parseFilters<T> = {
-  [P in keyof T]?: OneRequired< T[P] extends number ? numberFilters<T[P]> : textFilters<T[P]> > | T[P]
+  [P in keyof T]?: OneRequired< T[P] extends number ? numberFilters<T[P]> : T[P] extends Date ? dateFilters<T[P]> : textFilters<T[P]> > | T[P]
 }
 
 type WhereFilters<T> = parseFilters<OmitRelations<T> >
