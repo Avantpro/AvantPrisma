@@ -40,7 +40,7 @@ export default async () => {
     const uniqueProps: string[] = []
     const props = m.split('\r\n').filter(v => v.trim() != '').map(v => v.trim())
     props.forEach(p => {
-      if (p.includes('$unique') || p.includes('$id')) uniqueProps.push(p.split(' ')[0])
+      if (p.includes('$unique') || p.includes('$id')) uniqueProps.push(p.split(' ')[0].toUpperCase())
     })
     modelsUniques.push(uniqueProps)
   })
@@ -57,7 +57,7 @@ export default async () => {
       let defaultValue: any = p.substring(p.indexOf('$default(') + 9, p.length - 1)
       if (typeof defaultValue == 'string') defaultValue = defaultValue.substring(1, defaultValue.length - 1)
 
-      defaultProps[p.split(' ')[0]] = defaultValue
+      defaultProps[p.split(' ')[0].toUpperCase()] = defaultValue
     })
     modelsDefaults.push(defaultProps)
   })
@@ -75,8 +75,8 @@ export default async () => {
     const props = m.split('\r\n').filter(v => v.trim() != '').map(v => v.trim()).filter(p => p.includes('$relation'))
     props.forEach(p => {
       let relation = p.substring(p.indexOf('$relation(') + 10, p.length - 1)
-      const field = relation.substring(relation.indexOf('fields:') + 7, relation.indexOf(']')).replace('[', '').trim()
-      const references = relation.substring(relation.indexOf('references:') + 11, relation.indexOf(']', relation.indexOf('references:'))).replace('[', '').trim()
+      const field = relation.substring(relation.indexOf('fields:') + 7, relation.indexOf(']')).replace('[', '').trim().toUpperCase()
+      const references = relation.substring(relation.indexOf('references:') + 11, relation.indexOf(']', relation.indexOf('references:'))).replace('[', '').trim().toUpperCase()
       relations[prefix + p.split(' ')[1].replace('*', '').replace('[]', '').toUpperCase()] = {
         field,
         references
@@ -92,7 +92,7 @@ export default async () => {
     let imports = ''
     const props = m.split('\r\n').filter(v => v.trim() != '').map(v => v.trim())
     props.forEach(p => {
-      let property = p.split(' ')[0]
+      let property = p.split(' ')[0].toUpperCase()
       let type = (p.split(' ')[1])
       if (type.includes('*')) {
         type = type.replace('*', '')
