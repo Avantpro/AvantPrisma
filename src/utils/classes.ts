@@ -188,7 +188,7 @@ class AvantTable<T> {
   #dateToISO(d: Date): string {
     var iso = d.getFullYear().toString() + "-";
     iso += (d.getMonth() + 1).toString().padStart(2, '0') + "-";
-    iso += d.getDate().toString().padStart(2, '0') + "T";
+    iso += d.getDate().toString().padStart(2, '0') + " "; //+ "T";
     iso += d.getHours().toString().padStart(2, '0') + ":";
     iso += d.getMinutes().toString().padStart(2, '0') + ":";
     iso += d.getSeconds().toString().padStart(2, '0');
