@@ -178,7 +178,7 @@ class AvantTable<T> {
       if (Object.prototype.hasOwnProperty.call(include, key)) {
         if (include[key]) {
           const k = prefix + key.toUpperCase()
-          joinQuery += `LEFT JOIN ${k} ON ${this.name}.${this.relations[k].field} = ${k}.${this.relations[k].references};`
+          joinQuery += `LEFT JOIN ${k} ON ${this.name}.${this.relations[k].field} = ${k}.${this.relations[k].references}`
         }
       }
     }
