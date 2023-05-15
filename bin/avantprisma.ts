@@ -8,7 +8,15 @@ import build from '../src/build'
 
 console.log(`${FgRed} ---------------------------------------- ${FgWhite}`);
 
-switch (process.argv[2]) {
+let argLimpo:string
+
+try {
+  argLimpo = process.argv[2]?.toLowerCase();
+} catch (error) {
+  argLimpo = ''
+}
+
+switch (argLimpo) {
   case 'help':
     help()
     break;
