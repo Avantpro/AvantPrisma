@@ -87,6 +87,7 @@ class AvantTable<T> {
       const k = keys[i]
       let v = values[i]
       if (typeof v == 'string') v = `'${v}'`
+      if(v instanceof Date) v = this.#dateToISO(v)
 
       setQuery += `${k}=${v}`
       if (!(i + 1 == keys.length)) setQuery += ', '
