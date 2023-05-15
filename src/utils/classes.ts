@@ -51,7 +51,7 @@ class AvantTable<T> {
     const where = args.where ? this.#whereQuery(args.where) : ''
     const fields = args.select ? this.#fieldsQuery(args.select, !!args.include) : '*'
     const join = args.include ? this.#joinQuery(args.include) : ''
-    return `SELECT ${fields} FROM ${this.name} ${where} ${join}`
+    return `SELECT ${fields} FROM ${this.name} ${join} ${where} `
   }
 
   public findUnique(args: findUniqueArgs<T>): string {
@@ -59,7 +59,7 @@ class AvantTable<T> {
     const whereCols = Object.keys(args.where)
     const join = args.include ? this.#joinQuery(args.include) : ''
     if (!this.uniques.some(u => whereCols.includes(u))) throw new Error('Find unique requires at least one unique property')
-    return `SELECT ${fields} FROM ${this.name} ${this.#whereQuery(args.where)} ${join}`
+    return `SELECT ${fields} FROM ${this.name} ${join} ${this.#whereQuery(args.where)}`
   }
 
   public create(data: OmitRelations<T>): string {
