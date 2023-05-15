@@ -22,7 +22,7 @@ export default async () => {
     process.abort()
   }
 
-  const prefix = process.env.AVANT_PREFIX || 'BLACK_'
+  const prefix = process.env.AVANT_PREFIX || ''
 
   const modelsName = data.split('schema').filter(v => v.trim() != '').map(v => v.split('{')[0].trim())
 
