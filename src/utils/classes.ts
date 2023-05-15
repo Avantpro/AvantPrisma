@@ -3,22 +3,22 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 type findArgs<T> = {
-  where?: OneRequired< WhereFilters<T> >
-  select?: Binary<OmitRelations<T> >
+  where?: OneRequired<WhereFilters<T>>
+  select?: Binary<OmitRelations<T>>
   include?: Relations<T>
 }
 
 type findUniqueArgs<T> = findArgs<T> & {
-  where: OneRequired< WhereFilters<T> >
+  where: OneRequired<WhereFilters<T>>
 }
 
 type updateArgs<T> = {
-  where: OneRequired< WhereFilters<T> >
+  where: OneRequired<WhereFilters<T>>
   data: OmitRelations<T>
 }
 
 type deleteArgs<T> = {
-  where: OneRequired<WhereFilters<T> >
+  where: OneRequired<WhereFilters<T>>
 }
 
 type Defaults = {
@@ -38,7 +38,7 @@ class AvantTable<T> {
   private defaults: Defaults
   private relations: TableRelations
 
-  constructor(name: string, uniques: string[], defaults: Defaults, relations: TableRelations){
+  constructor(name: string, uniques: string[], defaults: Defaults, relations: TableRelations) {
     this.name = name
     this.uniques = uniques
     this.defaults = defaults
@@ -46,38 +46,39 @@ class AvantTable<T> {
   }
 
 
-  public findMany(args?: findArgs<T>): string{
-    if(!args) return `SELECT * FROM ${this.name}`
+  public findMany(args?: findArgs<T>): string {
+    if (!args) return `SELECT * FROM ${this.name}`
     const where = args.where ? this.#whereQuery(args.where) : ''
     const fields = args.select ? this.#fieldsQuery(args.select, !!args.include) : '*'
     const join = args.include ? this.#joinQuery(args.include) : ''
     return `SELECT ${fields} FROM ${this.name} ${where} ${join}`
   }
 
-  public findUnique(args: findUniqueArgs<T>): string{
+  public findUnique(args: findUniqueArgs<T>): string {
     const fields = args.select ? this.#fieldsQuery(args.select, !!args.include) : '*'
     const whereCols = Object.keys(args.where)
     const join = args.include ? this.#joinQuery(args.include) : ''
-    if(!this.uniques.some(u => whereCols.includes(u))) throw new Error('Find unique requires at least one unique property')
+    if (!this.uniques.some(u => whereCols.includes(u))) throw new Error('Find unique requires at least one unique property')
     return `SELECT ${fields} FROM ${this.name} ${this.#whereQuery(args.where)} ${join}`
   }
 
-  public create(data: OmitRelations<T>): string{
+  public create(data: OmitRelations<T>): string {
     let dataBuffer = data as { [key: string]: any }
     const defaultKeys = Object.keys(this.defaults)
     defaultKeys.forEach(k => {
-      if(!dataBuffer[k]) dataBuffer[k] = this.defaults[k]
+      if (!dataBuffer[k]) dataBuffer[k] = this.defaults[k]
     })
     const fields = `(${Object.keys(dataBuffer).join(', ')})`
     let values = Object.values(dataBuffer)
     values = values.map(v => {
-      if(typeof v == 'string') return `'${v}'`
+      if(v instanceof Date) return this.#dateToISO(v)
+      else if (typeof v == 'string') return `'${v}'`
       else return v
     })
     return `INSERT INTO ${this.name} ${fields} VALUES (${values.join(', ')});`
   }
 
-  public update(args: updateArgs<T>): string{
+  public update(args: updateArgs<T>): string {
     let setQuery = ''
     const where = this.#whereQuery(args.where)
     const keys = Object.keys(args.data)
@@ -85,22 +86,22 @@ class AvantTable<T> {
     for (let i = 0; i < keys.length; i++) {
       const k = keys[i]
       let v = values[i]
-      if(typeof v == 'string') v = `'${v}'`
-      
+      if (typeof v == 'string') v = `'${v}'`
+
       setQuery += `${k}=${v}`
-      if(!(i + 1 == keys.length)) setQuery += ', '
+      if (!(i + 1 == keys.length)) setQuery += ', '
     }
     return `UPDATE ${this.name} SET ${setQuery} ${where}`
   }
 
-  public delete(args: deleteArgs<T>): string{
+  public delete(args: deleteArgs<T>): string {
     const whereCols = Object.keys(args.where)
-    if(!this.uniques.some(u => whereCols.includes(u))) throw new Error('Delete requires at least one unique property')
+    if (!this.uniques.some(u => whereCols.includes(u))) throw new Error('Delete requires at least one unique property')
     const where = this.#whereQuery(args.where)
     return `DELETE FROM ${this.name} ${where}`
   }
 
-  #whereQuery (where: OneRequired<WhereFilters<T> >): string {
+  #whereQuery(where: OneRequired<WhereFilters<T>>): string {
     const keys = Object.keys(where)
     let acc = 0
     let query: string = 'WHERE '
@@ -111,6 +112,7 @@ class AvantTable<T> {
         const key = where[prop]
         const filter = key instanceof Object ? Object.keys(key)[0] as Filter : 'equals'
         let value = key instanceof Object ? Object.values(key)[0] : key
+        if(value instanceof Date) value = this.#dateToISO(value)
 
         switch (filter) {
           case 'contains':
@@ -123,7 +125,7 @@ class AvantTable<T> {
             query += `LIKE '%${value}'`
             break;
           case 'equals':
-            if(typeof value === 'string') value = `'${value}'`
+            if (typeof value === 'string') value = `'${value}'`
             query += `= ${value}`
             break;
           case 'in':
@@ -155,31 +157,41 @@ class AvantTable<T> {
         }
 
         acc++
-        if(acc < keys.length) query += ` AND `
+        if (acc < keys.length) query += ` AND `
       }
     }
     return query
   }
 
-  #fieldsQuery (select: Binary<OmitRelations<T>>, join: boolean): string{
+  #fieldsQuery(select: Binary<OmitRelations<T>>, join: boolean): string {
     let keys = Object.keys(select)
     keys = keys.filter((_k, i) => Object.values(select)[i])
-    if(join) keys = keys.map(k => `${this.name}.${k}`)
+    if (join) keys = keys.map(k => `${this.name}.${k}`)
     return keys.join(', ').toUpperCase()
   }
 
-  #joinQuery (include: Relations<T>): string{
+  #joinQuery(include: Relations<T>): string {
     let prefix = process.env.AVANT_PREFIX || ''
     let joinQuery = ''
     for (const key in include) {
       if (Object.prototype.hasOwnProperty.call(include, key)) {
-        if(include[key]) {
+        if (include[key]) {
           const k = prefix + key.toUpperCase()
           joinQuery += `LEFT JOIN ${k} ON ${this.name}.${this.relations[k].field} = ${k}.${this.relations[k].references};`
         }
       }
     }
     return joinQuery
+  }
+
+  #dateToISO(d: Date): string {
+    var iso = d.getFullYear().toString() + "-";
+    iso += (d.getMonth() + 1).toString().padStart(2, '0') + "-";
+    iso += d.getDate().toString().padStart(2, '0') + "T";
+    iso += d.getHours().toString().padStart(2, '0') + ":";
+    iso += d.getMinutes().toString().padStart(2, '0') + ":";
+    iso += d.getSeconds().toString().padStart(2, '0');
+    return `'${iso}'`
   }
 
 }
