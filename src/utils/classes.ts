@@ -157,7 +157,7 @@ class AvantTable<T> {
             case 'between':
               if(value[0] instanceof Date) value[0] = this.#dateToISO(value[0])
               if(value[1] instanceof Date) value[1] = this.#dateToISO(value[1])
-              query += `(BETWEEN ${value[0]} AND ${value[1]})`
+              query += `BETWEEN ${value[0]} AND ${value[1]}`
             default:
               break;
           }
