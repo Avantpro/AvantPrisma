@@ -41,7 +41,7 @@ type dateFilters<T> = {
   lte: Date,
   gt: Date,
   gte: Date,
-  beetween: [Date, Date]
+  between: [Date, Date]
 } & genericFilters<T>
 
 type numberFilters<T> = {

@@ -111,53 +111,61 @@ class AvantTable<T> {
         query += prop.toUpperCase() + ' '
 
         const key = where[prop]
-        const filter = key instanceof Date ? 'equals' : key instanceof Object ? Object.keys(key)[0] as Filter : 'equals'
-        let value = key instanceof Date ? key : key instanceof Object ? Object.values(key)[0] : key
-        if(value instanceof Date) value = this.#dateToISO(value)
 
-        switch (filter) {
-          case 'contains':
-            query += `LIKE '%${value}%'`
-            break;
-          case 'startsWith':
-            query += `LIKE '${value}%'`
-            break;
-          case 'endsWith':
-            query += `LIKE '%${value}'`
-            break;
-          case 'equals':
-            if (typeof value === 'string') value = `'${value}'`
-            query += `= ${value}`
-            break;
-          case 'in':
-            query += `IN (${value.join(', ')})`
-            break;
-          case 'notIn':
-            query += `NOT IN (${value.join(', ')})`
-            break;
-          case 'not':
-            query += `!= ${value}`
-            break;
-          case 'gt':
-            query += `> ${value}`
-            break;
-          case 'gte':
-            query += `>= ${value}`
-            break;
-          case 'lt':
-            query += `< ${value}`
-            break;
-          case 'lte':
-            query += `<= ${value}`
-            break;
-          case 'between':
-            if(value[0] instanceof Date) value[0] = this.#dateToISO(value[0])
-            if(value[1] instanceof Date) value[1] = this.#dateToISO(value[1])
-            query += `BETWEEN ${value[0]} AND ${value[1]}`
-            break;
-          default:
-            break;
-        }
+        const filters = key instanceof Date ? ['equals'] as Filter[] : key instanceof Object ? Object.keys(key) as Filter[] : ['equals'] as Filter[]
+        let value = key instanceof Date ? key : key instanceof Object ? Object.values(key)[0] : key
+        if(value instanceof Date && !filters.includes('equals')) value = this.#dateToISO(value)
+
+        filters.forEach((filter, i) => {
+
+          switch (filter) {
+            case 'contains':
+              query += `LIKE '%${value}%'`
+              break;
+            case 'startsWith':
+              query += `LIKE '${value}%'`
+              break;
+            case 'endsWith':
+              query += `LIKE '%${value}'`
+              break;
+            case 'equals':
+              if (typeof value === 'string') value = `'${value}'`
+              if (value instanceof Date) value = this.#dateToISO(value)
+              query += `= ${value}`
+              break;
+            case 'in':
+              query += `IN (${value.join(', ')})`
+              break;
+            case 'notIn':
+              query += `NOT IN (${value.join(', ')})`
+              break;
+            case 'not':
+              query += `!= ${value}`
+              break;
+            case 'gt':
+              query += `> ${value}`
+              break;
+            case 'gte':
+              query += `>= ${value}`
+              break;
+            case 'lt':
+              query += `< ${value}`
+              break;
+            case 'lte':
+              query += `<= ${value}`
+              break;
+            case 'between':
+              if(value[0] instanceof Date) value[0] = this.#dateToISO(value[0])
+              if(value[1] instanceof Date) value[1] = this.#dateToISO(value[1])
+              query += `(BETWEEN ${value[0]} AND ${value[1]})`
+            default:
+              break;
+          }
+
+          if(i < filters.length) query += ` AND `
+  
+        })
+
 
         acc++
         if (acc < keys.length) query += ` AND `
@@ -194,7 +202,7 @@ class AvantTable<T> {
     iso += d.getHours().toString().padStart(2, '0') + ":";
     iso += d.getMinutes().toString().padStart(2, '0') + ":";
     iso += d.getSeconds().toString().padStart(2, '0');
-    return `${iso}`
+    return `'${iso}'`
   }
 
 }
