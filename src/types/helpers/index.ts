@@ -58,12 +58,18 @@ type textFilters<T> = {
   endsWith: string
 } & genericFilters<T>
 
+type Mandatory<T> = Required<NonNullable<T>>
+
 type parseFilters<T> = {
-  [P in keyof T]?: OneRequired< T[P] extends number ? numberFilters<T[P]> : T[P] extends Date ? dateFilters<T[P]> : textFilters<T[P]> > | T[P]
+  [P in keyof T ]?: OneRequired< 
+    Mandatory<T[P]> extends number ? numberFilters<T[P]> 
+    : Mandatory<T[P]> extends Date ? dateFilters<T[P]> 
+    : textFilters<T[P]> > 
+    | T[P]
 }
 
 type WhereFilters<T> = parseFilters<OmitRelations<T> >
 
-type Filter = 'equals' | 'not'| 'in' | 'notIn' | 'lt' | 'lte' | 'gt' | 'gte' | 'between' | 'contains' | 'startsWith' | 'endsWith'
+type Filter = 'equals' | 'not' | 'in' | 'notIn' | 'lt' | 'lte' | 'gt' | 'gte' | 'between' | 'contains' | 'startsWith' | 'endsWith'
 
 export {Optional, Binary, OneRequired, WhereFilters, Filter, Relations, OmitRelations}
