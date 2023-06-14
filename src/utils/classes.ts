@@ -162,7 +162,7 @@ class AvantTable<T> {
               break;
           }
 
-          if(i < filters.length - 1) query += ` AND ${key} `
+          if(i < filters.length - 1) query += ` AND ${prop.toUpperCase()} `
   
         })
 
