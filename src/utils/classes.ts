@@ -111,8 +111,8 @@ class AvantTable<T> {
         query += prop.toUpperCase() + ' '
 
         const key = where[prop]
-        const filter = key instanceof Object ? Object.keys(key)[0] as Filter : 'equals'
-        let value = key instanceof Object ? Object.values(key)[0] : key
+        const filter = key instanceof Date ? 'equals' : key instanceof Object ? Object.keys(key)[0] as Filter : 'equals'
+        let value = key instanceof Date ? key : key instanceof Object ? Object.values(key)[0] : key
         if(value instanceof Date) value = this.#dateToISO(value)
 
         switch (filter) {
@@ -194,7 +194,7 @@ class AvantTable<T> {
     iso += d.getHours().toString().padStart(2, '0') + ":";
     iso += d.getMinutes().toString().padStart(2, '0') + ":";
     iso += d.getSeconds().toString().padStart(2, '0');
-    return `'${iso}'`
+    return `${iso}`
   }
 
 }
