@@ -6,6 +6,8 @@ type findArgs<T> = {
   where?: OneRequired<WhereFilters<T>>
   select?: Binary<OmitRelations<T>>
   include?: Relations<T>
+  skip?: number
+  take?: number
 }
 
 type findUniqueArgs<T> = findArgs<T> & {
@@ -51,15 +53,19 @@ class AvantTable<T> {
     const where = args.where ? this.#whereQuery(args.where) : ''
     const fields = args.select ? this.#fieldsQuery(args.select, !!args.include) : '*'
     const join = args.include ? this.#joinQuery(args.include) : ''
-    return `SELECT ${fields} FROM ${this.name} ${join} ${where} `
+    const first = args.take ? `FIRST ${args.take!}` : ''
+    const skip = args.skip ? `SKIP ${args.skip!}` : ''
+    return `SELECT ${first} ${skip} ${fields} FROM ${this.name} ${join} ${where} `
   }
 
   public findUnique(args: findUniqueArgs<T>): string {
     const fields = args.select ? this.#fieldsQuery(args.select, !!args.include) : '*'
     const whereCols = Object.keys(args.where)
     const join = args.include ? this.#joinQuery(args.include) : ''
+    const first = args.take ? `FIRST ${args.take!}` : ''
+    const skip = args.skip ? `SKIP ${args.skip!}` : ''
     if (!this.uniques.some(u => whereCols.includes(u))) throw new Error('Find unique requires at least one unique property')
-    return `SELECT ${fields} FROM ${this.name} ${join} ${this.#whereQuery(args.where)}`
+    return `SELECT ${first} ${skip} ${fields} FROM ${this.name} ${join} ${this.#whereQuery(args.where)}`
   }
 
   public create(data: OmitRelations<T>): string {
