@@ -72,4 +72,16 @@ type WhereFilters<T> = parseFilters<OmitRelations<T> >
 
 type Filter = 'equals' | 'not' | 'in' | 'notIn' | 'lt' | 'lte' | 'gt' | 'gte' | 'between' | 'contains' | 'startsWith' | 'endsWith'
 
-export {Optional, Binary, OneRequired, WhereFilters, Filter, Relations, OmitRelations}
+type genericOrder = {
+  sort:'asc'|'desc',
+  nulls:'first'|'lest'
+} 
+
+type OrderFilters<T> = {
+  [P in keyof T ]?: OneRequired<genericOrder> | string
+}
+
+type Order = 'sort'|'nulls'
+
+
+export {Optional, Binary, OneRequired, WhereFilters, Filter, Relations, OmitRelations, OrderFilters, Order}

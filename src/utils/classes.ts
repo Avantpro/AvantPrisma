@@ -1,4 +1,4 @@
-import { Optional, Binary, OneRequired, Relations, WhereFilters, Filter, OmitRelations } from '../types/helpers/index'
+import { Optional, Binary, OneRequired, Relations, WhereFilters, Filter, OmitRelations, OrderFilters, Order} from '../types/helpers/index'
 import * as dotenv from 'dotenv'
 dotenv.config()
 
@@ -8,6 +8,7 @@ type findArgs<T> = {
   include?: Relations<T>
   skip?: number
   take?: number
+  orderBy?: OrderFilters<T>
 }
 
 type findUniqueArgs<T> = findArgs<T> & {
@@ -55,7 +56,8 @@ class AvantTable<T> {
     const join = args.include ? this.#joinQuery(args.include) : ''
     const first = args.take ? `FIRST ${args.take!}` : ''
     const skip = args.skip ? `SKIP ${args.skip!}` : ''
-    return `SELECT ${first} ${skip} ${fields} FROM ${this.name} ${join} ${where} `
+    const orderBy = args.orderBy ? this.#orderQuery(args.orderBy) : ''
+    return `SELECT ${first} ${skip} ${fields} FROM ${this.name} ${join} ${where} ${orderBy}`
   }
 
   public findUnique(args: findUniqueArgs<T>): string {
@@ -119,10 +121,12 @@ class AvantTable<T> {
         const key = where[prop]
 
         const filters = key instanceof Date ? ['equals'] as Filter[] : key instanceof Object ? Object.keys(key) as Filter[] : ['equals'] as Filter[]
-        let value = key instanceof Date ? key : key instanceof Object ? Object.values(key)[0] : key
-        if(value instanceof Date && !filters.includes('equals')) value = this.#dateToISO(value)
+        let values = key instanceof Date ? [key] : key instanceof Object ? Object.values(key) : [key]
+        
 
         filters.forEach((filter, i) => {
+          let value = values[i]
+          if(value instanceof Date && !filters.includes('equals')) value = this.#dateToISO(value)
 
           switch (filter) {
             case 'contains':
@@ -199,6 +203,47 @@ class AvantTable<T> {
       }
     }
     return joinQuery
+  }
+
+  #orderQuery(orderBy:OrderFilters<T>):string{
+    const keys = Object.keys(orderBy)
+    let acc = 0
+    let query: string = 'order by '
+    for (const prop in orderBy) {
+      if (Object.prototype.hasOwnProperty.call(orderBy, prop)) {
+        const key = orderBy[prop]
+        const filters = key instanceof Object ? Object.keys(key) as Order[] : ['sort'] as Order[]
+        let values = key instanceof Object ? Object.values(key) : [key]
+
+        let sort:string = '' 
+        let nulls:string = ''
+
+        filters.forEach((filter, i) => {
+          switch (filter) {
+            case 'sort':
+              sort = prop.toUpperCase() + ' ' + values[i]
+              break;
+            case 'nulls':     
+              switch (values[i]) {
+                case 'last':
+                    nulls = `case when ${prop.toUpperCase()} is null then 1 else 0 end`
+                  break;
+                case 'fist':
+                    nulls = `case when ${prop.toUpperCase()} is null then 0 else 1 end`
+                  break;
+              }
+              break;
+          }
+        })
+    
+        query += nulls != '' ? nulls+' , ' : ''
+        query += sort != '' ? sort+' ' : ''
+
+        acc++
+        if (acc < keys.length) query += ` , `
+      }
+    }
+    return query
   }
 
   #dateToISO(d: Date): string {
