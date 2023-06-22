@@ -126,16 +126,19 @@ class AvantTable<T> {
 
         filters.forEach((filter, i) => {
           let value = values[i]
-          if(value instanceof Date && !filters.includes('equals')) value = this.#dateToISO(value)
+          // if(value instanceof Date && !filters.includes('equals')) value = this.#dateToISO(value)
 
           switch (filter) {
             case 'contains':
+              if (value instanceof Date) value = this.#dateToISO(value)
               query += `LIKE '%${value}%'`
               break;
             case 'startsWith':
+              if (value instanceof Date) value = this.#dateToISO(value)
               query += `LIKE '${value}%'`
               break;
             case 'endsWith':
+              if (value instanceof Date) value = this.#dateToISO(value)
               query += `LIKE '%${value}'`
               break;
             case 'equals':
@@ -144,24 +147,31 @@ class AvantTable<T> {
               query += `= ${value}`
               break;
             case 'in':
+              if (value instanceof Date) value = this.#dateToISO(value)
               query += `IN (${value.join(', ')})`
               break;
             case 'notIn':
+              if (value instanceof Date) value = this.#dateToISO(value)
               query += `NOT IN (${value.join(', ')})`
               break;
             case 'not':
+              if (value instanceof Date) value = this.#dateToISO(value)
               query += `!= ${value}`
               break;
             case 'gt':
+              if (value instanceof Date) value = this.#dateToISO(value)
               query += `> ${value}`
               break;
             case 'gte':
+              if (value instanceof Date) value = this.#dateToISO(value)
               query += `>= ${value}`
               break;
             case 'lt':
+              if (value instanceof Date) value = this.#dateToISO(value)
               query += `< ${value}`
               break;
             case 'lte':
+              if (value instanceof Date) value = this.#dateToISO(value)
               query += `<= ${value}`
               break;
             case 'between':
