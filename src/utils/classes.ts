@@ -147,12 +147,20 @@ class AvantTable<T> {
               query += `= ${value}`
               break;
             case 'in':
-              if (value instanceof Date) value = this.#dateToISO(value)
-              query += `IN (${value.join(', ')})`
+              query += `IN (${value.map((v:any) => {
+                let temp = v;
+                if (temp instanceof Date) temp = this.#dateToISO(temp)
+                if (typeof temp === 'string') temp = `'${temp}'`
+                return temp
+              }).join(', ')})`
               break;
             case 'notIn':
-              if (value instanceof Date) value = this.#dateToISO(value)
-              query += `NOT IN (${value.join(', ')})`
+              query += `NOT IN (${value.map((v:any) => {
+                let temp = v;
+                if (temp instanceof Date) temp = this.#dateToISO(temp)
+                if (typeof temp === 'string') temp = `'${temp}'`
+                return temp
+              }).join(', ')})`
               break;
             case 'not':
               if (value instanceof Date) value = this.#dateToISO(value)
