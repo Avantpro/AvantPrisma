@@ -3,6 +3,10 @@
   "version": "1.4.0",
   "description": "",
   "main": "build/src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Avantpro/AvantPrisma"
+  },
   "scripts": {
     "build": "npx tsc",
     "public": "npm rum build && npm version patch && npm publish"
@@ -13,7 +17,7 @@
     "help": "./build/bin/help.js",
     "build": "./build/src/build.js"
   },
-  "keywords": [],
+  "keywords": ["SQLBuild"],
   "author": "",
   "license": "ISC",
   "devDependencies": {
