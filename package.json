@@ -5,7 +5,7 @@
   "main": "build/src/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Avantpro/AvantPrisma"
+    "url": "https://github.com/Avantpro/AvantPrisma.git"
   },
   "scripts": {
     "build": "npx tsc",
