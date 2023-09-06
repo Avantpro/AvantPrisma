@@ -1,9 +1,11 @@
 import fs from 'fs'
 import path from 'path'
 import { compile } from './tsBuild'
-import * as ts from "typescript";
+import * as ts from "typescript"
+import * as dotenv from 'dotenv'
 
 export default async () => {
+  dotenv.config()
 
   const schemaPath = path.join(process.cwd(), 'avant')
   let data: string = ''
