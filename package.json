@@ -1,6 +1,6 @@
 {
   "name": "avantprisma",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "",
   "main": "build/src/index.js",
   "repository": {
@@ -17,7 +17,9 @@
     "help": "./build/bin/help.js",
     "build": "./build/src/build.js"
   },
-  "keywords": ["SQLBuild"],
+  "keywords": [
+    "SQLBuild"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
