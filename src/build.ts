@@ -1,11 +1,9 @@
 import fs from 'fs'
 import path from 'path'
-import * as dotenv from 'dotenv'
 import { compile } from './tsBuild'
 import * as ts from "typescript";
 
 export default async () => {
-  dotenv.config()
 
   const schemaPath = path.join(process.cwd(), 'avant')
   let data: string = ''
@@ -146,6 +144,11 @@ class AvantClient {
   constructor(){
     ${clientTablesConstructor}
   }
+
+  public Generators(name: string) {
+    return \`select gen_id( \${name.toUpperCase()}, 1 ) from RDB$DATABASE\`
+  }
+
 }
 
 export default AvantClient
