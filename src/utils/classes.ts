@@ -56,7 +56,7 @@ class AvantTable<T> {
     const join = args.include ? this.#joinQuery(args.include) : ''
     const first = args.take ? `FIRST ${args.take!}` : ''
     const skip = args.skip ? `SKIP ${args.skip!}` : ''
-    const orderBy = args.orderBy ? this.#orderQuery(args.orderBy) : ''
+    const orderBy = args.orderBy ? this.#orderQuery(args.orderBy, !!args.include) : ''
     return `SELECT ${first} ${skip} ${fields} FROM ${this.name} ${join} ${where} ${orderBy}`
   }
 
@@ -81,6 +81,7 @@ class AvantTable<T> {
     values = values.map(v => {
       if(v instanceof Date) return this.#dateToISO(v)
       else if (typeof v == 'string') return `'${v}'`
+      else if (v === undefined || v === null) v = 'NULL'
       else return v
     })
     return `INSERT INTO ${this.name} ${fields} VALUES (${values.join(', ')});`
@@ -96,6 +97,7 @@ class AvantTable<T> {
       let v = values[i]
       if (typeof v == 'string') v = `'${v}'`
       if(v instanceof Date) v = this.#dateToISO(v)
+      if (v === undefined || v === null) v = 'NULL'
 
       setQuery += `${k}=${v}`
       if (!(i + 1 == keys.length)) setQuery += ', '
@@ -105,7 +107,7 @@ class AvantTable<T> {
 
   public delete(args: deleteArgs<T>): string {
     const whereCols = Object.keys(args.where)
-    if (!this.uniques.some(u => whereCols.includes(u))) throw new Error('Delete requires at least one unique property')
+    // if (!this.uniques.some(u => whereCols.includes(u))) throw new Error('Delete requires at least one unique property')
     const where = this.#whereQuery(args.where)
     return `DELETE FROM ${this.name} ${where}`
   }
@@ -216,14 +218,14 @@ class AvantTable<T> {
       if (Object.prototype.hasOwnProperty.call(include, key)) {
         if (include[key]) {
           const k = prefix + key.toUpperCase()
-          joinQuery += `LEFT JOIN ${k} ON ${this.name}.${this.relations[k].field} = ${k}.${this.relations[k].references}`
+          joinQuery = joinQuery + `LEFT JOIN ${k} ON ${this.name}.${this.relations[k].field} = ${k}.${this.relations[k].references} `
         }
       }
     }
     return joinQuery
   }
 
-  #orderQuery(orderBy:OrderFilters<T>):string{
+  #orderQuery(orderBy:OrderFilters<T>, join: boolean):string{
     const keys = Object.keys(orderBy)
     let acc = 0
     let query: string = 'order by '
@@ -239,15 +241,15 @@ class AvantTable<T> {
         filters.forEach((filter, i) => {
           switch (filter) {
             case 'sort':
-              sort = prop.toUpperCase() + ' ' + values[i]
+              sort = `${ join ? this.name+'.' :''}` + prop.toUpperCase() + ' ' + values[i]
               break;
             case 'nulls':     
               switch (values[i]) {
                 case 'last':
-                    nulls = `case when ${prop.toUpperCase()} is null then 1 else 0 end`
+                    nulls = `case when ${join ? this.name+'.'+prop.toUpperCase() : prop.toUpperCase()} is null then 1 else 0 end`
                   break;
                 case 'fist':
-                    nulls = `case when ${prop.toUpperCase()} is null then 0 else 1 end`
+                    nulls = `case when ${join ? this.name+'.'+prop.toUpperCase() : prop.toUpperCase()} is null then 0 else 1 end`
                   break;
               }
               break;
