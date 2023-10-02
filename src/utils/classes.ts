@@ -51,7 +51,7 @@ class AvantTable<T> {
 
   public findMany(args?: findArgs<T>): string {
     if (!args) return `SELECT * FROM ${this.name}`
-    const where = args.where ? this.#whereQuery(args.where) : ''
+    const where = args.where ? this.#whereQuery(args.where, !!args.include) : ''
     const fields = args.select ? this.#fieldsQuery(args.select, !!args.include) : '*'
     const join = args.include ? this.#joinQuery(args.include) : ''
     const first = args.take ? `FIRST ${args.take!}` : ''
@@ -67,7 +67,7 @@ class AvantTable<T> {
     const first = args.take ? `FIRST ${args.take!}` : ''
     const skip = args.skip ? `SKIP ${args.skip!}` : ''
     if (!this.uniques.some(u => whereCols.includes(u))) throw new Error('Find unique requires at least one unique property')
-    return `SELECT ${first} ${skip} ${fields} FROM ${this.name} ${join} ${this.#whereQuery(args.where)}`
+    return `SELECT ${first} ${skip} ${fields} FROM ${this.name} ${join} ${this.#whereQuery(args.where, !!args.include)}`
   }
 
   public create(data: OmitRelations<T>): string {
@@ -89,7 +89,7 @@ class AvantTable<T> {
 
   public update(args: updateArgs<T>): string {
     let setQuery = ''
-    const where = this.#whereQuery(args.where)
+    const where = this.#whereQuery(args.where, false)
     const keys = Object.keys(args.data)
     const values = Object.values(args.data)
     for (let i = 0; i < keys.length; i++) {
@@ -108,17 +108,17 @@ class AvantTable<T> {
   public delete(args: deleteArgs<T>): string {
     const whereCols = Object.keys(args.where)
     // if (!this.uniques.some(u => whereCols.includes(u))) throw new Error('Delete requires at least one unique property')
-    const where = this.#whereQuery(args.where)
+    const where = this.#whereQuery(args.where, false)
     return `DELETE FROM ${this.name} ${where}`
   }
 
-  #whereQuery(where: OneRequired<WhereFilters<T>>): string {
+  #whereQuery(where: OneRequired<WhereFilters<T>>, join: boolean): string {
     const keys = Object.keys(where)
     let acc = 0
     let query: string = 'WHERE '
     for (const prop in where) {
       if (Object.prototype.hasOwnProperty.call(where, prop)) {
-        query += prop.toUpperCase() + ' '
+        query += `${join ? this.name+'.' :''}${prop.toUpperCase()}` + ' '
 
         const key = where[prop]
 
@@ -241,7 +241,7 @@ class AvantTable<T> {
         filters.forEach((filter, i) => {
           switch (filter) {
             case 'sort':
-              sort = `${ join ? this.name+'.' :''}` + prop.toUpperCase() + ' ' + values[i]
+              sort = `${ join ? this.name+'.' : '' }` + prop.toUpperCase() + ' ' + values[i]
               break;
             case 'nulls':     
               switch (values[i]) {
