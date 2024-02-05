@@ -87,6 +87,29 @@ class AvantTable<T> {
     return `INSERT INTO ${this.name} ${fields} VALUES (${values.join(', ')});`
   }
 
+  public createMany(data: OmitRelations<T>[]): string {
+    let dataBuffer = data as { [key: string]: any }[]
+    const defaultKeys = Object.keys(this.defaults)
+    dataBuffer = dataBuffer.map(d => {
+      defaultKeys.forEach(k => {
+        if (!d[k]) d[k] = this.defaults[k]
+      })
+      return d
+    })
+    const fields = `(${Object.keys(dataBuffer[0]).join(', ')})`
+    let values = dataBuffer.map(d => {
+      let v = Object.values(d)
+      v = v.map(v => {
+        if(v instanceof Date) return this.#dateToISO(v)
+        else if (typeof v == 'string') return `'${v}'`
+        else if (v === undefined || v === null) v = 'NULL'
+        else return v
+      })
+      return `(${v.join(', ')})`
+    })
+    return `INSERT INTO ${this.name} ${fields} VALUES ${values.join(', ')};`
+  }
+
   public update(args: updateArgs<T>): string {
     let setQuery = ''
     const where = this.#whereQuery(args.where, false)
