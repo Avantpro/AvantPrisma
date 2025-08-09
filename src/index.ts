@@ -1,11 +1,9 @@
 class AvantClient {
-
-  constructor(){}
+  constructor() {}
 
   public Generators(name: string) {
-    return '' 
+    return "";
   }
-
 }
 
-export default AvantClient
+export default AvantClient;

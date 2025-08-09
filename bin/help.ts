@@ -1,4 +1,4 @@
-import { FgMagenta ,FgWhite } from '../src/utils/consoleColors'
+import { FgMagenta ,FgWhite } from '../src/utils/console-colors'
 import path from 'path'
 
 export default async () => {

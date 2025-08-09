@@ -1,0 +1,27 @@
+export let Reset = "\x1b[0m";
+export let Bright = "\x1b[1m";
+export let Dim = "\x1b[2m";
+export let Underscore = "\x1b[4m";
+export let Blink = "\x1b[5m";
+export let Reverse = "\x1b[7m";
+export let Hidden = "\x1b[8m";
+
+export let FgBlack = "\x1b[30m";
+export let FgRed = "\x1b[31m";
+export let FgGreen = "\x1b[32m";
+export let FgYellow = "\x1b[33m";
+export let FgBlue = "\x1b[34m";
+export let FgMagenta = "\x1b[35m";
+export let FgCyan = "\x1b[36m";
+export let FgWhite = "\x1b[37m";
+export let FgGray = "\x1b[90m";
+
+export let BgBlack = "\x1b[40m";
+export let BgRed = "\x1b[41m";
+export let BgGreen = "\x1b[42m";
+export let BgYellow = "\x1b[43m";
+export let BgBlue = "\x1b[44m";
+export let BgMagenta = "\x1b[45m";
+export let BgCyan = "\x1b[46m";
+export let BgWhite = "\x1b[47m";
+export let BgGray = "\x1b[100m";

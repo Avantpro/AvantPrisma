@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { FgRed,FgWhite } from '../src/utils/consoleColors'
+import { FgRed,FgWhite } from '../src/utils/console-colors'
 
 import help from './help'
 import init from './init'
